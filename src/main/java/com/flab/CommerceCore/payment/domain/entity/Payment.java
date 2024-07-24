@@ -1,5 +1,6 @@
 package com.flab.CommerceCore.payment.domain.entity;
 
+import com.flab.CommerceCore.common.enums.Status;
 import com.flab.CommerceCore.order.domain.entity.Order;
 import jakarta.persistence.*;
 
@@ -16,6 +17,9 @@ public class Payment {
     private Order order;
 
     private Double amount;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
     private LocalDateTime paymentTime;
 }

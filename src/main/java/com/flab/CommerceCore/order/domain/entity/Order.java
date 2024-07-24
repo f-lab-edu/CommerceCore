@@ -1,5 +1,6 @@
 package com.flab.CommerceCore.order.domain.entity;
 
+import com.flab.CommerceCore.common.enums.Status;
 import com.flab.CommerceCore.payment.domain.entity.Payment;
 import com.flab.CommerceCore.user.domain.entity.User;
 import jakarta.persistence.*;
@@ -20,7 +21,10 @@ public class Order {
     private User user;
 
     private LocalDateTime orderDate;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
     private Double totalAmount;
 
     @OneToMany(mappedBy = "order")
