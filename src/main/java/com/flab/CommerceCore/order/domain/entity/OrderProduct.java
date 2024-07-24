@@ -11,16 +11,16 @@ public class OrderProduct {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderProductId;
 
-    @OneToMany
+    @ManyToOne
     @JoinColumn(name="order_id")
     private Order order;
 
-    @OneToMany
+    @ManyToOne
     @JoinColumn(name="product_id")
     private Product product;
 
     private int quantity;
     private Double price;
-    private LocalDateTime create;
+    private LocalDateTime createOrderProduct;
 
 }
