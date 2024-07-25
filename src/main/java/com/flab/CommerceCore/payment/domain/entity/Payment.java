@@ -4,6 +4,7 @@ import com.flab.CommerceCore.common.enums.Status;
 import com.flab.CommerceCore.order.domain.entity.Order;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,7 +17,7 @@ public class Payment {
     @JoinColumn(name="order_id")
     private Order order;
 
-    private Double amount;
+    private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
     private Status status;

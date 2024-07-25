@@ -4,6 +4,7 @@ import com.flab.CommerceCore.inventory.domain.entity.Inventory;
 import com.flab.CommerceCore.order.domain.entity.OrderProduct;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class Product {
 
     private String productName;
     private String description;
-    private Double price;
+    private BigDecimal price;
     private LocalDateTime createTime;
 
     @OneToMany(mappedBy = "product")

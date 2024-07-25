@@ -5,6 +5,7 @@ import com.flab.CommerceCore.payment.domain.entity.Payment;
 import com.flab.CommerceCore.user.domain.entity.User;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    private Double totalAmount;
+    private BigDecimal totalAmount;
 
     @OneToMany(mappedBy = "order")
     private List<OrderProduct> orderProducts;

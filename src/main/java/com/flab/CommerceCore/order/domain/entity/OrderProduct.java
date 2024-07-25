@@ -3,6 +3,7 @@ package com.flab.CommerceCore.order.domain.entity;
 import com.flab.CommerceCore.product.domain.entity.Product;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,7 +21,9 @@ public class OrderProduct {
     private Product product;
 
     private int quantity;
-    private Double price;
+
+    private BigDecimal totalPrice;
+
     private LocalDateTime createOrderProduct;
 
 }
