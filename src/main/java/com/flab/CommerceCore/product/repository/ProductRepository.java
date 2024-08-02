@@ -13,11 +13,7 @@ public class ProductRepository {
     EntityManager em;
 
     public void save(Product product){
-        if(product.getProductId() == null){
-            em.persist(product);
-        }else{
-            em.merge(product);
-        }
+       em.persist(product);
     }
     public Product findById(Long productId){
         return em.find(Product.class,productId);

@@ -3,11 +3,13 @@ package com.flab.CommerceCore.payment.domain.entity;
 import com.flab.CommerceCore.common.enums.Status;
 import com.flab.CommerceCore.order.domain.entity.Order;
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
