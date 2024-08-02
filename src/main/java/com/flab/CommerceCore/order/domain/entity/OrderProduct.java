@@ -4,7 +4,6 @@ import com.flab.CommerceCore.product.domain.entity.Product;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Entity
 public class OrderProduct {
@@ -23,7 +22,5 @@ public class OrderProduct {
     private int quantity;
 
     private BigDecimal totalPrice;
-
-    private LocalDateTime createOrderProduct;
 
 }

@@ -15,8 +15,9 @@ public class InventoryRepository {
         em.persist(inventory);
     }
 
-    public Integer getQuantity(Long productId){
-        return em.createQuery("select i.quantity from Inventory i where i.product.productId = :productId", Integer.class)
+
+    public Inventory findByProductId(Long productId){
+        return em.createQuery("select i from Inventory i where i.product.productId = :productId", Inventory.class)
                 .setParameter("productId", productId)
                 .getSingleResult();
     }

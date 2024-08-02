@@ -37,10 +37,10 @@ class InventoryRepositoryTest {
 
 
         //when
-        Integer quantity = inventoryRepository.getQuantity(product.getProductId());
+        Inventory findInventory = inventoryRepository.findByProductId(product.getProductId());
 
         //then
-        assertEquals(30,quantity);
+        assertEquals(30,findInventory.getQuantity());
     }
 
 
