@@ -25,4 +25,8 @@ public class Payment {
     private Status status;
 
     private LocalDateTime paymentTime;
+
+    public void setOrder(Order order){
+        this.order = order;
+    }
 }
