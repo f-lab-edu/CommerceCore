@@ -31,4 +31,14 @@ public class Inventory {
         this.product = product;
         this.quantity = quantity;
     }
+
+    // 비즈니스 코드
+    public void reduceQuantity(Integer quantity){
+        if(this.quantity > quantity){
+            this.quantity = quantity;
+            this.lastUpdate = LocalDateTime.now();
+        }
+        // 예외처리
+
+    }
 }
