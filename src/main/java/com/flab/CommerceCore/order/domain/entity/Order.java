@@ -4,6 +4,8 @@ import com.flab.CommerceCore.common.enums.Status;
 import com.flab.CommerceCore.payment.domain.entity.Payment;
 import com.flab.CommerceCore.user.domain.entity.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
@@ -12,7 +14,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "orders")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class Order {
 
     @Id
@@ -36,37 +39,41 @@ public class Order {
     @OneToOne(mappedBy = "order")
     private Payment payment;
 
-    public Order(User user, Payment payment, OrderProduct... orderProducts){
-        setUser(user);
-        this.orderDate = LocalDateTime.now();
-        this.status = Status.PROCESSING;
-        setPayment(payment);
-        for(OrderProduct orderProduct : orderProducts){
-            addOrderProduct(orderProduct);
+    public static Order createOrder(User user,List<OrderProduct> orderProductList){
+        Order order = new Order();
+        order.changeUser(user);
+        order.orderDate = LocalDateTime.now();
+        for(OrderProduct orderProduct : orderProductList){
+            order.addOrderProduct(orderProduct);
         }
-        this.totalAmount = calculateTotalAmount();
+        order.totalAmount = order.calculateTotalAmount();
+
+        return order;
     }
 
     // 연관관계 메서드
-    public void setUser(User user){
+    public void changeUser(User user){
         this.user = user;
-        user.getOrders().add(this);
+
     }
 
     public void addOrderProduct(OrderProduct orderProduct){
         orderProducts.add(orderProduct);
-        orderProduct.setOrder(this);
     }
 
-    public void setPayment(Payment payment){
+    public void changePayment(Payment payment){
         this.payment = payment;
-        payment.setOrder(this);
     }
 
 
     // 비즈니스 코드
-    public void changeStatus(Status status){
-        this.status = status;
+    public void changeStatus(){
+        if(this.payment.getStatus() == Status.COMPLETED){
+            this.status = Status.COMPLETED;
+        }else{
+            this.status = Status.FAILED;
+        }
+
     }
 
     public BigDecimal calculateTotalAmount(){

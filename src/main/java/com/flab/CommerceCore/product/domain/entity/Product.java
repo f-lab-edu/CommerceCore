@@ -3,6 +3,7 @@ package com.flab.CommerceCore.product.domain.entity;
 import com.flab.CommerceCore.inventory.domain.entity.Inventory;
 import com.flab.CommerceCore.order.domain.entity.OrderProduct;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,7 @@ import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Product {
 
