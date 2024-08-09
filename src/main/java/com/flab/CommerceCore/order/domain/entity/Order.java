@@ -31,7 +31,6 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    private BigDecimal totalAmount;
 
     @OneToMany(mappedBy = "order")
     private List<OrderProduct> orderProducts;
@@ -46,11 +45,9 @@ public class Order {
         for(OrderProduct orderProduct : orderProductList){
             order.addOrderProduct(orderProduct);
         }
-        order.totalAmount = order.calculateTotalAmount();
 
         return order;
     }
-
     // 연관관계 메서드
     public void changeUser(User user){
         this.user = user;
@@ -76,7 +73,9 @@ public class Order {
 
     }
 
-    public BigDecimal calculateTotalAmount(){
+    public BigDecimal getTotalAmount(){
+
+        BigDecimal totalAmount = BigDecimal.ZERO;
 
         for(OrderProduct orderProduct : orderProducts){
             totalAmount = totalAmount.add(orderProduct.getTotalPrice());
