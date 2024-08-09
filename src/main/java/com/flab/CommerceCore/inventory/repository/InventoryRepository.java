@@ -1,5 +1,6 @@
 package com.flab.CommerceCore.inventory.repository;
 
+import com.flab.CommerceCore.common.query.QueryConstant;
 import com.flab.CommerceCore.inventory.domain.entity.Inventory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -17,7 +18,7 @@ public class InventoryRepository {
 
 
     public Inventory findByProductId(Long productId){
-        return em.createQuery("select i from Inventory i where i.product.productId = :productId", Inventory.class)
+        return em.createQuery(QueryConstant.FIND_INVENTORY_BY_PRODUCT_ID, Inventory.class)
                 .setParameter("productId", productId)
                 .getSingleResult();
     }

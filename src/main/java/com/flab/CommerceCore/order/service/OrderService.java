@@ -8,13 +8,13 @@ import com.flab.CommerceCore.order.domain.entity.Order;
 import com.flab.CommerceCore.order.domain.entity.OrderProduct;
 import com.flab.CommerceCore.order.repository.OrderProductRepository;
 import com.flab.CommerceCore.order.repository.OrderRepository;
-import com.flab.CommerceCore.payment.domain.dto.PaymentRequest;
 import com.flab.CommerceCore.payment.domain.entity.Payment;
-import com.flab.CommerceCore.payment.domain.service.PaymentService;
+import com.flab.CommerceCore.payment.service.PaymentService;
 import com.flab.CommerceCore.product.domain.entity.Product;
 import com.flab.CommerceCore.product.repository.ProductRepository;
 import com.flab.CommerceCore.user.domain.entity.User;
 import com.flab.CommerceCore.user.repository.UserRepository;
+import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +36,9 @@ public class OrderService {
 
 
     @Autowired
-    public OrderService(UserRepository userRepository, ProductRepository productRepository, InventoryRepository inventoryRepository, PaymentService paymentService, OrderRepository orderRepository, OrderProductRepository orderProductRepository){
+    public OrderService(UserRepository userRepository, ProductRepository productRepository,
+        InventoryRepository inventoryRepository, PaymentService paymentService,
+        OrderRepository orderRepository, OrderProductRepository orderProductRepository){
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.inventoryRepository = inventoryRepository;
@@ -50,40 +52,18 @@ public class OrderService {
     public Long order(@RequestBody OrderRequest orderRequest){
 
         // 알맞은 유저인지 검사
-        User user = userRepository.findById(orderRequest.getUserId());
+        User user = validateUser(orderRequest.getUserId());
 
+        List<OrderProduct> orderProductList = createOrderProducts(orderRequest.getOrderProductRequests());
 
-        List<OrderProduct> orderProductList = new ArrayList<>();
-
-        for(OrderProductRequest orderProductRequest : orderRequest.getOrderProductRequests()){
-            // 알맞은 상품인지 검사
-            Product product = productRepository.findById(orderProductRequest.getProductId());
-
-            // 재고에 등록된 상품인지 검사
-            Inventory inventory = inventoryRepository.findByProductId(product.getProductId());
-
-            // 수량 체크 후 재고 감소
-            inventory.reduceQuantity(orderProductRequest.getQuantity());
-
-            // orderProduct 생성
-            OrderProduct orderProduct = OrderProduct.OrderProduct(product,orderProductRequest.getQuantity());
-
-            // orderProduct 영속화
-            orderProductRepository.save(orderProduct);
-            orderProductList.add(orderProduct);
-
-        }
+        // payment process
+        Payment payment = processPayment(orderProductList);
         // order 생성
-        Order order = Order.createOrder(user,orderProductList);
-
-        // payment 생성
-        Payment payment = paymentService.payment(new PaymentRequest(order.calculateTotalAmount()));
-
-        // 연관관계 메서드
-        order.changePayment(payment);
-
-        // 결제 상태에 따라 주문 상태 변경
-        order.changeStatus();
+        Order order = Order.builder()
+            .user(user)
+            .orderProducts(orderProductList)
+            .payment(payment)
+            .build();
 
         // order 영속화
         orderRepository.save(order);
@@ -91,5 +71,58 @@ public class OrderService {
         return order.getOrderId();
 
     }
+
+    private User validateUser(Long userId){
+        return userRepository.findById(userId);
+    }
+
+    private Inventory validateInventory(Long productId){
+        return inventoryRepository.findByProductId(productId);
+    }
+
+    private List<OrderProduct> createOrderProducts(List<OrderProductRequest> orderProductRequests){
+        List<OrderProduct> orderProductList = new ArrayList<>();
+
+        for(OrderProductRequest orderProductRequest : orderProductRequests){
+
+            // 재고에 등록된 상품인지 검사
+            Inventory inventory = validateInventory(orderProductRequest.getProductId());
+
+            // 수량 체크 후 재고 감소
+            inventory.reduceQuantity(orderProductRequest.getQuantity());
+
+
+            Product product = productRepository.findById(orderProductRequest.getProductId());
+
+            OrderProduct orderProduct = OrderProduct.builder()
+                .product(product)
+                .quantity(orderProductRequest.getQuantity())
+                .build();
+            // orderProduct 영속화
+            orderProductRepository.save(orderProduct);
+
+            orderProductList.add(orderProduct);
+        }
+
+        return orderProductList;
+    }
+
+    private Payment processPayment(List<OrderProduct> orderProductList){
+        BigDecimal totalAmount = getTotalAmount(orderProductList);
+        return paymentService.payment(totalAmount);
+    }
+
+
+    private BigDecimal getTotalAmount(List<OrderProduct> orderProducts){
+
+        BigDecimal totalAmount = BigDecimal.ZERO;
+
+        for(OrderProduct orderProduct : orderProducts){
+            totalAmount = totalAmount.add(orderProduct.getTotalPrice());
+        }
+
+        return totalAmount;
+    }
+
 
 }
