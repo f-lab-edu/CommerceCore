@@ -2,7 +2,6 @@ package com.flab.CommerceCore.payment.domain.entity;
 
 import com.flab.CommerceCore.common.enums.Status;
 import com.flab.CommerceCore.order.domain.entity.Order;
-import com.flab.CommerceCore.payment.domain.dto.PaymentRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,10 +29,10 @@ public class Payment {
 
     private LocalDateTime paymentTime;
 
-    public static Payment createPayment(PaymentRequest paymentRequest){
+    public static Payment createPayment(BigDecimal totalAmount){
         Payment payment = new Payment();
         payment.paymentTime = LocalDateTime.now();
-        payment.amount = paymentRequest.getAmount();
+        payment.amount = totalAmount;
 
         return payment;
     }

@@ -1,14 +1,11 @@
-package com.flab.CommerceCore.payment.domain.service;
+package com.flab.CommerceCore.payment.service;
 
 import com.flab.CommerceCore.common.enums.Status;
-import com.flab.CommerceCore.order.domain.entity.Order;
-import com.flab.CommerceCore.payment.domain.dto.PaymentRequest;
 import com.flab.CommerceCore.payment.domain.entity.Payment;
 import com.flab.CommerceCore.payment.repository.PaymentRepository;
+import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
 
 @Service
 public class PaymentService {
@@ -20,9 +17,9 @@ public class PaymentService {
         this.paymentRepository = paymentRepository;
     }
 
-    public Payment payment(PaymentRequest paymentRequest){
+    public Payment payment(BigDecimal totalAmount){
 
-        Payment payment = Payment.createPayment(paymentRequest);
+        Payment payment = Payment.createPayment(totalAmount);
 
         if(callPaymentAPI(payment)){
             payment.changeStatus(Status.COMPLETED);

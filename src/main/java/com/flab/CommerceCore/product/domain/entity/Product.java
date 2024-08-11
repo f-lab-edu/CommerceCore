@@ -1,6 +1,5 @@
 package com.flab.CommerceCore.product.domain.entity;
 
-import com.flab.CommerceCore.inventory.domain.entity.Inventory;
 import com.flab.CommerceCore.order.domain.entity.OrderProduct;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
