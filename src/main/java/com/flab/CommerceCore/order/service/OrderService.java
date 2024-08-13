@@ -1,5 +1,7 @@
 package com.flab.CommerceCore.order.service;
 
+import com.flab.CommerceCore.common.exceptions.BusinessException;
+import com.flab.CommerceCore.common.exceptions.ErrorCode;
 import com.flab.CommerceCore.inventory.domain.entity.Inventory;
 import com.flab.CommerceCore.inventory.repository.InventoryRepository;
 import com.flab.CommerceCore.order.domain.dto.OrderProductRequest;
@@ -15,6 +17,7 @@ import com.flab.CommerceCore.product.repository.ProductRepository;
 import com.flab.CommerceCore.user.domain.entity.User;
 import com.flab.CommerceCore.user.repository.UserRepository;
 import java.math.BigDecimal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public class OrderService {
 
 
@@ -73,11 +77,23 @@ public class OrderService {
     }
 
     private User validateUser(Long userId){
-        return userRepository.findById(userId);
+        User user = userRepository.findById(userId);
+
+        if(user == null){
+          log.error(ErrorCode.USERID_NOT_FOUND.getDetail(),userId);
+          throw BusinessException.create(ErrorCode.USERID_NOT_FOUND);
+        }
+        return user;
     }
 
     private Inventory validateInventory(Long productId){
-        return inventoryRepository.findByProductId(productId);
+        Inventory inventory =  inventoryRepository.findByProductId(productId);
+
+        if(inventory == null){
+          log.error(ErrorCode.PRODUCT_NOT_FOUND.getDetail(),productId);
+          throw BusinessException.create(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+        return inventory;
     }
 
     private List<OrderProduct> createOrderProducts(List<OrderProductRequest> orderProductRequests){

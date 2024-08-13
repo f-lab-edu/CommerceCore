@@ -39,6 +39,15 @@ public class GlobalExceptionHandler {
 
 
 
+  /**
+   * 비즈니스 계층에서 발생하는 예외 처리 메서드
+   * @param e
+   * @return
+   */
+  @ExceptionHandler(BusinessException.class)
+  public ResponseEntity<ErrorCode> handleBusinessException(BusinessException e){
+    return new ResponseEntity<>(e.getErrorCode(), HttpStatus.BAD_REQUEST);
+  }
 
 
 }
