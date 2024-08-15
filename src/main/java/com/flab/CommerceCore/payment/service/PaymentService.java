@@ -1,6 +1,8 @@
 package com.flab.CommerceCore.payment.service;
 
 import com.flab.CommerceCore.common.enums.Status;
+import com.flab.CommerceCore.common.exceptions.BusinessException;
+import com.flab.CommerceCore.common.exceptions.ErrorCode;
 import com.flab.CommerceCore.payment.domain.entity.Payment;
 import com.flab.CommerceCore.payment.repository.PaymentRepository;
 import java.math.BigDecimal;
@@ -25,6 +27,8 @@ public class PaymentService {
             payment.changeStatus(Status.COMPLETED);
         }else{
             payment.changeStatus(Status.FAILED);
+            paymentRepository.save(payment);
+            throw BusinessException.create(ErrorCode.PAYMENT_FAILED);
         }
 
         paymentRepository.save(payment);
