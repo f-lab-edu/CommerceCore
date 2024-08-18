@@ -6,6 +6,7 @@ import com.flab.CommerceCore.product.domain.entity.Product;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Getter
 @Slf4j
 public class Inventory {
@@ -30,14 +30,15 @@ public class Inventory {
     private Integer quantity;
     private LocalDateTime lastUpdate;
 
-    // 테스트용 생성자
-    public Inventory(Product product, Integer quantity) {
+    @Builder
+    public Inventory(Product product, Integer quantity){
         this.product = product;
         this.quantity = quantity;
+        this.lastUpdate = LocalDateTime.now();
     }
 
     // 비즈니스 코드
-    public void reduceQuantity(Integer quantity){
+    public synchronized void reduceQuantity(Integer quantity){
         if(this.quantity >= quantity){
             this.quantity -= quantity;
             this.lastUpdate = LocalDateTime.now();
