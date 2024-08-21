@@ -4,6 +4,7 @@ package com.flab.CommerceCore.common.exceptions;
 import static com.flab.CommerceCore.common.exceptions.ErrorCode.*;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,11 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorCode> handleDataIntegrityViolationException(DataIntegrityViolationException e){
     log.error("데이터 무결성 제약 조건 위반",e);
     return new ResponseEntity<>(DATA_INTEGRITY_VIOLATION,HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(DataAccessException.class)
+  public ResponseEntity<ErrorCode> handleDataAccessException(DataAccessException e){
+    return new ResponseEntity<>(DATA_ACCESS_EXCEPTION,HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
 
