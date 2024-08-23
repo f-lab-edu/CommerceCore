@@ -23,6 +23,7 @@ public class RepositoryErrorLogger {
         return joinPoint.proceed();
       } catch (DataAccessException error) {
         attempt++;
+        log.error("DataAccess 재시도 {}/{}",maxAttempt,attempt);
         if (attempt > maxAttempt) {
           log.error("[Exception in {}] - Message: {}", joinPoint.getSignature(), error.getMessage());
           throw error; // 예외 재발생시켜 예외 처리기로 전달
