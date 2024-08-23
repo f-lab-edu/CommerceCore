@@ -40,8 +40,8 @@ public class Inventory {
     // 비즈니스 코드
     public synchronized void reduceQuantity(Integer quantity){
         if(this.quantity >= quantity){
-            this.quantity -= quantity;
-            this.lastUpdate = LocalDateTime.now();
+          this.quantity -= quantity;
+          this.lastUpdate = LocalDateTime.now();
         }else{
             log.error(ErrorCode.INSUFFICIENT_INVENTORY.getDetail(),this.quantity,quantity);
             throw BusinessException.create(ErrorCode.INSUFFICIENT_INVENTORY);
