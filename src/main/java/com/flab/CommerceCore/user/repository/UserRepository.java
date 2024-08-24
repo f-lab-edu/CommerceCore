@@ -2,23 +2,11 @@ package com.flab.CommerceCore.user.repository;
 
 import com.flab.CommerceCore.common.annotation.LogRepositoryError;
 import com.flab.CommerceCore.user.domain.entity.User;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Repository
 @LogRepositoryError
-public class UserRepository {
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    @PersistenceContext
-    private EntityManager em;
-
-    public void save(User user){
-        em.persist(user);
-    }
-
-    public User findById(Long userId){
-        return em.find(User.class, userId);
-    }
+  User findByUserId(Long userId);
 
 }

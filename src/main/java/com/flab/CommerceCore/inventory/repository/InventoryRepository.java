@@ -1,25 +1,13 @@
 package com.flab.CommerceCore.inventory.repository;
 
-import com.flab.CommerceCore.common.query.QueryConstant;
+import static com.flab.CommerceCore.common.query.QueryConstant.FIND_INVENTORY_BY_PRODUCT_ID;
+
 import com.flab.CommerceCore.inventory.domain.entity.Inventory;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
-@Repository
-public class InventoryRepository {
+public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
-    @PersistenceContext
-    private EntityManager em;
-
-    public void save(Inventory inventory){
-        em.persist(inventory);
-    }
-
-
-    public Inventory findByProductId(Long productId){
-        return em.createQuery(QueryConstant.FIND_INVENTORY_BY_PRODUCT_ID, Inventory.class)
-                .setParameter("productId", productId)
-                .getSingleResult();
-    }
+    @Query(FIND_INVENTORY_BY_PRODUCT_ID)
+    Inventory findByProductId(Long productId);
 }

@@ -1,17 +1,11 @@
 package com.flab.CommerceCore.order.repository;
 
+
+import com.flab.CommerceCore.common.annotation.LogRepositoryError;
 import com.flab.CommerceCore.order.domain.entity.OrderProduct;
-import jakarta.persistence.EntityManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Repository
-public class OrderProductRepository {
+@LogRepositoryError
+public interface OrderProductRepository extends JpaRepository<OrderProduct, Long> {
 
-    @Autowired
-    private EntityManager em;
-
-    public void save(OrderProduct orderProduct){
-        em.persist(orderProduct);
-    }
 }

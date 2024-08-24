@@ -77,7 +77,7 @@ public class OrderService {
     }
 
     private User validateUser(Long userId){
-        User user = userRepository.findById(userId);
+        User user = userRepository.findByUserId(userId);
 
         if(user == null){
           log.error(ErrorCode.USERID_NOT_FOUND.getDetail(),userId);
@@ -108,7 +108,7 @@ public class OrderService {
             inventory.reduceQuantity(orderProductRequest.getQuantity());
 
 
-            Product product = productRepository.findById(orderProductRequest.getProductId());
+            Product product = productRepository.findByProductId(orderProductRequest.getProductId());
 
             OrderProduct orderProduct = OrderProduct.builder()
                 .product(product)
