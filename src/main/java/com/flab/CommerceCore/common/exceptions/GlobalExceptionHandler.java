@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(BusinessException.class)
   public ResponseEntity<ErrorCode> handleBusinessException(BusinessException e){
-    return new ResponseEntity<>(e.getErrorCode(), HttpStatus.BAD_REQUEST);
+    return new ResponseEntity<>(e.getErrorCode(), e.getErrorCode().getHttpStatus());
   }
 
 
