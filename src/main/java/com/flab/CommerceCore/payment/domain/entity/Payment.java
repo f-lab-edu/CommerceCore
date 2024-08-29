@@ -4,6 +4,7 @@ import com.flab.CommerceCore.common.enums.Status;
 import com.flab.CommerceCore.order.domain.entity.Order;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,10 +19,6 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long paymentId;
 
-    @OneToOne
-    @JoinColumn(name="order_id")
-    private Order order;
-
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
@@ -29,13 +26,13 @@ public class Payment {
 
     private LocalDateTime paymentTime;
 
-    public static Payment createPayment(BigDecimal totalAmount){
-        Payment payment = new Payment();
-        payment.paymentTime = LocalDateTime.now();
-        payment.amount = totalAmount;
-
-        return payment;
+    @Builder
+    public Payment(BigDecimal amount) {
+        this.amount = amount;
+        this.paymentTime = LocalDateTime.now();
+        this.status = Status.COMPLETED;
     }
+
 
     public void changeStatus(Status status) {
         this.status = status;

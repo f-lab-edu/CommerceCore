@@ -21,11 +21,11 @@ public class PaymentService {
 
     public Payment payment(BigDecimal totalAmount){
 
-        Payment payment = Payment.createPayment(totalAmount);
+        Payment payment = Payment.builder()
+            .amount(totalAmount)
+            .build();
 
-        if(callPaymentAPI(payment)){
-            payment.changeStatus(Status.COMPLETED);
-        }else{
+        if(!callPaymentAPI(payment)){
             payment.changeStatus(Status.FAILED);
             paymentRepository.save(payment);
             throw BusinessException.create(ErrorCode.PAYMENT_FAILED);
@@ -33,7 +33,7 @@ public class PaymentService {
 
         paymentRepository.save(payment);
 
-        return paymentRepository.findById(payment.getPaymentId());
+        return paymentRepository.findByPaymentId(payment.getPaymentId());
 
     }
 
