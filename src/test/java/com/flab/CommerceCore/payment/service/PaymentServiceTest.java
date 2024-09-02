@@ -3,6 +3,7 @@ package com.flab.CommerceCore.payment.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessException;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceTest {
@@ -49,9 +51,10 @@ class PaymentServiceTest {
    */
   @Test
   void createPayment_Fail_Amount_Negative(){
+    BigDecimal amount = new BigDecimal(-100);
     // 금액이 음수일 때 BusinessException 이 발생하는지 검증
     assertThrows(BusinessException.class, () -> {
-      paymentService.payment(new BigDecimal(-100));
+      paymentService.payment(amount);
     });
   }
 
@@ -59,7 +62,7 @@ class PaymentServiceTest {
    * 외부 결제 API 호출이 실패했을 때 Payment 가 FAILED 상태로 저장되고, 예외가 발생하는지 테스트
    */
   @Test
-  void createPayment_Fail_PG(){
+  void createPayment_Fail_PG_API_Error(){
     // given : 유효한 금액이 주어졌을 때
     BigDecimal amount = new BigDecimal(100);
 
@@ -79,6 +82,19 @@ class PaymentServiceTest {
     Payment capturedPayment = paymentCaptor.getValue();
     assertEquals(Status.FAILED, capturedPayment.getStatus());
 
+  }
+
+  @Test
+  void createPayment_Fail_Repository_Error(){
+    BigDecimal amount = new BigDecimal(100);
+
+    when(paymentRepository.save(any(Payment.class))).thenThrow(new DataAccessException("DB Error") {});
+
+    assertThrows(DataAccessException.class, () -> {
+      paymentService.payment(amount);
+    });
+
+    verify(paymentRepository, times(1)).save(any(Payment.class));
   }
 
   /**
