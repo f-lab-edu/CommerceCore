@@ -7,9 +7,11 @@ import com.flab.CommerceCore.user.domain.dto.UserResponse;
 import com.flab.CommerceCore.user.domain.entity.User;
 import com.flab.CommerceCore.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -30,7 +32,8 @@ public class UserService {
   @Transactional
   public UserResponse createUser(UserRequest userRequest){
     if(userRepository.findByEmail(userRequest.getEmail()) != null){
-        throw new BusinessException(ErrorCode.DUPLICATED_USER);
+      log.error(ErrorCode.DUPLICATED_USER_EMAIL.getDetail(),userRequest.getEmail());
+        throw new BusinessException(ErrorCode.DUPLICATED_USER_EMAIL);
     }
 
     User user = convertRequestToEntity(userRequest);
@@ -52,6 +55,7 @@ public class UserService {
     User findUser = userRepository.findByUserId(userId);
 
     if(findUser == null){
+      log.error(ErrorCode.USERID_NOT_FOUND.getDetail(),userId);
       throw new BusinessException(ErrorCode.USERID_NOT_FOUND);
     }
 
@@ -70,6 +74,7 @@ public class UserService {
   public UserResponse updateUser(Long userId, UserRequest userRequest){
     User findUser = userRepository.findByUserId(userId);
     if(findUser == null){
+      log.error(ErrorCode.USERID_NOT_FOUND.getDetail(),userId);
       throw new BusinessException(ErrorCode.USERID_NOT_FOUND);
     }
 
