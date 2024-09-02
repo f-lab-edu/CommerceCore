@@ -1,5 +1,6 @@
 package com.flab.CommerceCore.user.service;
 
+import com.flab.CommerceCore.common.Mapper.UserMapper;
 import com.flab.CommerceCore.common.exceptions.BusinessException;
 import com.flab.CommerceCore.common.exceptions.ErrorCode;
 import com.flab.CommerceCore.user.domain.dto.UserRequest;
@@ -16,11 +17,13 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
   @Autowired
-  public UserService(UserRepository userRepository){
+  public UserService(UserRepository userRepository, UserMapper mapper){
     this.userRepository = userRepository;
+    this.mapper = mapper;
   }
 
   private final UserRepository userRepository;
+  private final UserMapper mapper;
 
   /**
    * User 생성 메서드
@@ -36,10 +39,10 @@ public class UserService {
         throw new BusinessException(ErrorCode.DUPLICATED_USER_EMAIL);
     }
 
-    User user = convertRequestToEntity(userRequest);
+    User user = mapper.convertRequestToEntity(userRequest);
     User saveUser = userRepository.save(user);
 
-    return convertEntityToResponse(saveUser);
+    return mapper.convertEntityToResponse(saveUser);
   }
 
   /**
@@ -59,7 +62,7 @@ public class UserService {
       throw new BusinessException(ErrorCode.USERID_NOT_FOUND);
     }
 
-    return convertEntityToResponse(findUser);
+    return mapper.convertEntityToResponse(findUser);
   }
 
   /**
@@ -78,39 +81,7 @@ public class UserService {
       throw new BusinessException(ErrorCode.USERID_NOT_FOUND);
     }
 
-    findUser.updateUser(userRequest);
-    return convertEntityToResponse(findUser);
+    return mapper.convertEntityToResponse(findUser.updateUser(userRequest));
   }
 
-  /**
-   * UserRequest DTO를 User 엔티티로 변환하는 메서드
-   *
-   * @param userRequest 사용자 요청 정보
-   * @return 변환된 User 엔티티
-   */
-  private User convertRequestToEntity(UserRequest userRequest) {
-    return User.builder()
-        .name(userRequest.getName())
-        .email(userRequest.getEmail())
-        .password(userRequest.getPassword())
-        .phoneNum(userRequest.getPhoneNum())
-        .address(userRequest.getAddress())
-        .build();
-  }
-
-  /**
-   * User 엔티티를 UserResponse DTO로 변환하는 메서드
-   *
-   * @param user 변환할 User 엔티티
-   * @return 변환된 UserResponse DTO
-   */
-  private UserResponse convertEntityToResponse(User user) {
-    return UserResponse.builder()
-        .userId(user.getUserId())
-        .name(user.getName())
-        .email(user.getEmail())
-        .phoneNum(user.getPhoneNum())
-        .address(user.getAddress())
-        .build();
-  }
 }
