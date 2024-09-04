@@ -17,12 +17,12 @@ import com.flab.CommerceCore.user.domain.dto.UserResponse;
 import com.flab.CommerceCore.user.service.UserService;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -56,26 +56,54 @@ class UserControllerTest {
         .build();
   }
 
+  /**
+   * 필드가 null인 경우, Bad Request(400) 상태 코드를 반환하는지 테스트
+   */
   @Test
   void createUser_Fail_null() throws Exception {
-
     UserRequest userRequest = userRequest(null, null, null, null, null);
+
     ResultActions resultActions = performPostRequest(URL, userRequest);
+
     resultActions.andExpect(status().isBadRequest());
   }
 
+  /**
+   * 이메일이 중복된 경우, BusinessException이 발생하고 Bad Request(400) 상태 코드를 반환하는지 테스트
+   */
   @Test
   void createUser_Fail_Duplicated() throws Exception {
-
     UserRequest userRequest = userRequest(NAME,EMAIL,PASSWORD,PHONE_NUM,ADDRESS);
-    doThrow(new BusinessException(ErrorCode.DUPLICATED_USER))
+
+    doThrow(new BusinessException(ErrorCode.DUPLICATED_USER_EMAIL))
         .when(userService)
         .createUser(any(UserRequest.class));
 
     ResultActions resultActions = performPostRequest(URL, userRequest);
+
     resultActions.andExpect(status().isBadRequest());
   }
 
+  /**
+   * DB 오류가 발생한 경우, Internal Server Error(500) 상태 코드를 반환하는지 테스트
+   */
+  @Test
+  void createUser_Fail_DB_Exception() throws Exception {
+
+    UserRequest userRequest = userRequest(NAME,EMAIL,PASSWORD,PHONE_NUM,ADDRESS);
+
+    doThrow(new DataAccessException("DB Error") {})
+        .when(userService)
+        .createUser(any(UserRequest.class));
+
+    ResultActions resultActions = performPostRequest(URL, userRequest);
+
+    resultActions.andExpect(status().isInternalServerError());
+  }
+
+  /**
+   * 사용자가 성공적으로 생성된 경우, Created(201) 상태 코드를 반환하는지 테스트
+   */
   @Test
   void createUser_Success() throws Exception {
 
@@ -95,7 +123,9 @@ class UserControllerTest {
     verify(userService, times(1)).createUser(any(UserRequest.class));
   }
 
-
+  /**
+   * 존재하지 않는 사용자 조회 시 Not Found(404) 상태 코드를 반환하는지 테스트
+   */
   @Test
   void findUser_Fail_null() throws Exception {
 
@@ -107,6 +137,9 @@ class UserControllerTest {
     resultActions.andExpect(status().isNotFound());
   }
 
+  /**
+   * 사용자가 성공적으로 조회된 경우, OK(200) 상태 코드를 반환하는지 테스트
+   */
   @Test
   void findUser_success() throws Exception {
 
@@ -126,6 +159,9 @@ class UserControllerTest {
     verify(userService, times(1)).findUserByUserId(1L);
   }
 
+  /**
+   * 존재하지 않는 사용자 정보 업데이트 시 Not Found(404) 상태 코드를 반환하는지 테스트
+   */
   @Test
   void updateUser_Fail_null() throws Exception {
 
@@ -139,6 +175,9 @@ class UserControllerTest {
     resultActions.andExpect(status().isNotFound());
   }
 
+  /**
+   * 사용자 정보가 성공적으로 업데이트된 경우, OK(200) 상태 코드를 반환하는지 테스트
+   */
   @Test
   void updateUser_Success() throws Exception {
 
