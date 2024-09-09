@@ -3,6 +3,8 @@ package com.flab.CommerceCore.common.exceptions;
 
 import static com.flab.CommerceCore.common.exceptions.ErrorCode.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataAccessResourceFailureException;
@@ -51,8 +53,13 @@ public class GlobalExceptionHandler {
    * @return
    */
   @ExceptionHandler(BusinessException.class)
-  public ResponseEntity<ErrorCode> handleBusinessException(BusinessException e){
-    return new ResponseEntity<>(e.getErrorCode(), e.getErrorCode().getHttpStatus());
+  public ResponseEntity<Map<String, Object>> handleBusinessException(BusinessException e){
+    // ErrorCode 객체의 정보를 Map으로 변환
+    Map<String, Object> errorResponse = new HashMap<>();
+    errorResponse.put("errorCode", e.getErrorCode().name());
+    errorResponse.put("message", e.getErrorCode().getDetail());
+
+    return new ResponseEntity<>(errorResponse, e.getErrorCode().getHttpStatus());
   }
 
 
