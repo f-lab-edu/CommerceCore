@@ -3,7 +3,6 @@ package com.flab.CommerceCore.inventory.service;
 import com.flab.CommerceCore.common.Mapper.InventoryMapper;
 import com.flab.CommerceCore.common.exceptions.BusinessException;
 import com.flab.CommerceCore.common.exceptions.ErrorCode;
-import com.flab.CommerceCore.inventory.domain.dto.InventoryRequest;
 import com.flab.CommerceCore.inventory.domain.dto.InventoryResponse;
 import com.flab.CommerceCore.inventory.domain.entity.Inventory;
 import com.flab.CommerceCore.inventory.repository.InventoryRepository;
@@ -31,16 +30,30 @@ public class InventoryService {
    * 재고를 생성하는 메서드
    * @param product 생성할 재고에 대한 상품 정보
    * @param quantity 생성할 재고 수량
-   * @return 생성된 재고 정보를 담은 InventoryResponse 객체
+   * @return 재고 수량 반환
    * @throws BusinessException 중복된 상품이 있을 경우 발생
    */
-  public InventoryResponse createInventory(Product product, int quantity) {
+  public int createInventory(Product product, int quantity) {
 
     validateDuplicateProduct(product);
 
     Inventory inventory = mapper.toEntity(product, quantity);
 
-    return mapper.convertEntityToResponse(inventoryRepository.save(inventory));
+    Inventory savedInventory = inventoryRepository.save(inventory);
+
+    return savedInventory.getQuantity();
+  }
+
+
+  /**
+   * 상품에 대한 재고 수량 조회 메서드
+   *
+   * @param productId 조회할 상품 ID
+   * @return 상품에 대한 재고 수량
+   */
+  public int findQuantityByProductId(Long productId) {
+    Inventory inventory = getInventoryOrThrowByProductId(productId);
+    return inventory.getQuantity();
   }
 
 
@@ -104,14 +117,14 @@ public class InventoryService {
   /**
    * 재고 수량을 업데이트하는 메서드
    *
-   * @param inventoryId 업데이트 시킬 재고 ID
+   * @param productId 업데이트 시킬 상품 ID
    * @param quantity 업데이트시킬 수량
    * @return 업데이트된 재고 정보를 담은 InventoryResponse 객체
    * @throws BusinessException 재고가 존재하지 않을 경우 발생
    */
   @Transactional
-  public InventoryResponse updateQuantity(Long inventoryId, int quantity){
-    Inventory inventory = getInventoryOrThrow(inventoryId);
+  public InventoryResponse updateQuantity(Long productId, int quantity){
+    Inventory inventory = getInventoryOrThrowByProductId(productId);
     inventory.updateQuantity(quantity);
 
 

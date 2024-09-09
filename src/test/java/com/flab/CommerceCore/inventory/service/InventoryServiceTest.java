@@ -42,23 +42,15 @@ class InventoryServiceTest {
     // given
     Product product = createTestProduct("Test Product");
     Inventory inventory = createTestInventory(product, 10);
-    InventoryResponse response = InventoryResponse.builder()
-        .inventoryId(1L)
-        .product(product)
-        .quantity(10)
-        .build();
 
     when(inventoryRepository.save(any(Inventory.class))).thenReturn(inventory);
     when(mapper.toEntity(product,10)).thenReturn(inventory);
-    when(mapper.convertEntityToResponse(inventory)).thenReturn(response);
 
     // when
-    InventoryResponse createdInventory = inventoryService.createInventory(product, 10);
+    int quantity = inventoryService.createInventory(product, 10);
 
     // then
-    assertNotNull(createdInventory);
-    assertEquals(10, createdInventory.getQuantity());
-    assertEquals("Test Product", createdInventory.getProduct().getProductName());
+    assertEquals(10, quantity);
 
     verify(inventoryRepository, times(1)).save(any(Inventory.class));
 
@@ -215,7 +207,7 @@ class InventoryServiceTest {
         .build();
 
 
-    when(inventoryRepository.findByInventoryId(1L)).thenReturn(inventory);
+    when(inventoryRepository.findByProductId(1L)).thenReturn(inventory);
     when(mapper.convertEntityToResponse(inventory)).thenReturn(expectedResponse);
 
     // when
@@ -228,10 +220,10 @@ class InventoryServiceTest {
   }
 
   @Test
-  @DisplayName("존재하지 않는 재고 수량 업데이트 시 예외 발생 테스트")
+  @DisplayName("존재하지 않는 상품의 재고를 업데이트 시 예외 발생 테스트")
   void updateQuantityFailDueToNotFound() {
     // given
-    when(inventoryRepository.findByInventoryId(1L)).thenReturn(null);
+    when(inventoryRepository.findByProductId(1L)).thenReturn(null);
 
 
     // when/then
@@ -239,8 +231,8 @@ class InventoryServiceTest {
       inventoryService.updateQuantity(1L,10);
     });
 
-    assertEquals(ErrorCode.INVENTORY_NOT_FOUND, exception.getErrorCode());
-    verify(inventoryRepository, times(1)).findByInventoryId(1L);
+    assertEquals(ErrorCode.PRODUCT_NOT_FOUND, exception.getErrorCode());
+    verify(inventoryRepository, times(1)).findByProductId(1L);
   }
 
   @Test

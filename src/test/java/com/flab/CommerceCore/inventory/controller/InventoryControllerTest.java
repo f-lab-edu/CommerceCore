@@ -9,8 +9,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.flab.CommerceCore.common.exceptions.BusinessException;
-import com.flab.CommerceCore.common.exceptions.ErrorCode;
 import com.flab.CommerceCore.common.exceptions.GlobalExceptionHandler;
 import com.flab.CommerceCore.inventory.domain.dto.InventoryResponse;
 import com.flab.CommerceCore.inventory.service.InventoryService;
