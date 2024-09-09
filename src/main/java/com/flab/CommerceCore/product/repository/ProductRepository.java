@@ -7,4 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 @LogRepositoryError
 public interface ProductRepository extends JpaRepository<Product, Integer> {
   Product findByProductId(Long productId);
+  Product findByProductName(String productName);
 }
