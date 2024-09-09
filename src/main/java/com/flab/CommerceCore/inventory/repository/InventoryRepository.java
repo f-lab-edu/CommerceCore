@@ -10,4 +10,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
     @Query(FIND_INVENTORY_BY_PRODUCT_ID)
     Inventory findByProductId(Long productId);
+
+    Inventory findByInventoryId(Long inventoryId);
 }
