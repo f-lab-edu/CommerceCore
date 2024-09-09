@@ -1,9 +1,10 @@
 package com.flab.CommerceCore.product.domain.entity;
 
 import com.flab.CommerceCore.order.domain.entity.OrderProduct;
+import com.flab.CommerceCore.product.domain.dto.ProductRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,7 +15,6 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 public class Product {
 
     @Id
@@ -29,6 +29,18 @@ public class Product {
     @OneToMany(mappedBy = "product")
     private List<OrderProduct> orderProducts;
 
+    @Builder
+    public Product(String productName, String description, BigDecimal price) {
+        this.productName = productName;
+        this.description = description;
+        this.price = price;
+        this.createTime = LocalDateTime.now();
+    }
 
-
+    public Product updateProduct(ProductRequest productRequest) {
+        this.productName = productRequest.getProductName();
+        this.description = productRequest.getDescription();
+        this.price = productRequest.getPrice();
+        return this;
+    }
 }
