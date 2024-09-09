@@ -2,6 +2,7 @@ package com.flab.CommerceCore.inventory.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.flab.CommerceCore.common.enums.InventoryOperation;
 import com.flab.CommerceCore.inventory.domain.entity.Inventory;
 import com.flab.CommerceCore.product.domain.entity.Product;
 import com.flab.CommerceCore.product.repository.ProductRepository;
@@ -90,7 +91,7 @@ class InventoryRepositoryTest {
     int updateQuantity = 5;
     // when
 
-    inventory.reduceQuantity(updateQuantity);
+    inventory.modifyQuantity(updateQuantity, InventoryOperation.DECREASE);
 
     inventoryRepository.flush();
 
@@ -116,7 +117,7 @@ class InventoryRepositoryTest {
 
     int updateQuantity = 5;
 
-    inventory.increaseQuantity(updateQuantity);
+    inventory.modifyQuantity(updateQuantity, InventoryOperation.INCREASE);
 
     inventoryRepository.flush();
 
