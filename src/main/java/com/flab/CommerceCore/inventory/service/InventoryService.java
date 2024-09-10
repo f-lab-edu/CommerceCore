@@ -1,6 +1,7 @@
 package com.flab.CommerceCore.inventory.service;
 
 import com.flab.CommerceCore.common.Mapper.InventoryMapper;
+import com.flab.CommerceCore.common.enums.InventoryOperation;
 import com.flab.CommerceCore.common.exceptions.BusinessException;
 import com.flab.CommerceCore.common.exceptions.ErrorCode;
 import com.flab.CommerceCore.inventory.domain.dto.InventoryResponse;
@@ -91,7 +92,7 @@ public class InventoryService {
   @Transactional
   public InventoryResponse reduceQuantity(Long productId, int quantity) {
     Inventory inventory = getInventoryOrThrowByProductId(productId);
-    inventory.reduceQuantity(quantity);
+    inventory.modifyQuantity(quantity, InventoryOperation.DECREASE);
 
     return mapper.convertEntityToResponse(inventory);
   }
@@ -108,7 +109,7 @@ public class InventoryService {
   @Transactional
   public InventoryResponse increaseQuantity(Long inventoryId, int quantity) {
     Inventory inventory = getInventoryOrThrow(inventoryId);
-    inventory.increaseQuantity(quantity);
+    inventory.modifyQuantity(quantity, InventoryOperation.INCREASE);
 
     return mapper.convertEntityToResponse(inventory);
   }
@@ -125,7 +126,7 @@ public class InventoryService {
   @Transactional
   public InventoryResponse updateQuantity(Long productId, int quantity){
     Inventory inventory = getInventoryOrThrowByProductId(productId);
-    inventory.updateQuantity(quantity);
+    inventory.modifyQuantity(quantity, InventoryOperation.UPDATE);
 
 
     return mapper.convertEntityToResponse(inventory);
@@ -140,7 +141,7 @@ public class InventoryService {
    */
   private void validateDuplicateProduct(Product product) {
     if (inventoryRepository.findByProductId(product.getProductId()) != null) {
-      log.error("Duplicate product registration attempted for product: {}", product.getProductName());
+      log.error("이미 등록된 상품입니다.: {}", product.getProductName());
       throw new BusinessException(ErrorCode.DUPLICATED_PRODUCT);
     }
   }

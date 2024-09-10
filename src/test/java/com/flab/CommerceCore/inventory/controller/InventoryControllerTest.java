@@ -9,6 +9,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.flab.CommerceCore.common.exceptions.BusinessException;
+import com.flab.CommerceCore.common.exceptions.ErrorCode;
 import com.flab.CommerceCore.common.exceptions.GlobalExceptionHandler;
 import com.flab.CommerceCore.inventory.domain.dto.InventoryResponse;
 import com.flab.CommerceCore.inventory.service.InventoryService;
@@ -111,6 +113,79 @@ class InventoryControllerTest {
 
     verify(inventoryService, times(0)).increaseQuantity(any(Long.class), any(Integer.class));
   }
+
+  @Test
+  @DisplayName("재고 수량 업데이트 시 상품을 찾지 못할 경우 테스트")
+  void updateQuantityNotFoundProduct() throws Exception {
+
+    // given
+    when(inventoryService.updateQuantity(1L, 10))
+        .thenThrow(new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+
+    // then
+    mockMvc.perform(put("/inventory/1")
+            .param("quantity", "10")
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound())  // 400 Bad Request 응답
+        .andExpect(jsonPath("$.message").value(ErrorCode.PRODUCT_NOT_FOUND.getDetail())); // 에러 메시지 검증
+
+    verify(inventoryService, times(1)).updateQuantity(1L, 10);
+  }
+
+  @Test
+  @DisplayName("재고 수량 업데이트 시 입력 수량이 음수일 경우 테스트")
+  void updateQuantityNegativeQuantity() throws Exception {
+    // given
+    when(inventoryService.updateQuantity(1L, -10))
+        .thenThrow(new BusinessException(ErrorCode.NEGATIVE_QUANTITY)); // 잘못된 수량 예외 발생
+
+    // then
+    mockMvc.perform(put("/inventory/1")
+            .param("quantity", "-10") // 잘못된 수량 입력
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest())  // 잘못된 입력일 경우 400 응답
+        .andExpect(jsonPath("$.message").value(ErrorCode.NEGATIVE_QUANTITY.getDetail())); // 에러 메시지 검증
+
+    verify(inventoryService, times(1)).updateQuantity(1L, -10);
+  }
+
+  @Test
+  @DisplayName("재고 수량 증가 시 재고를 찾지 못할 경우 테스트")
+  void increaseQuantityNotFoundInventory() throws Exception {
+    // given
+    when(inventoryService.increaseQuantity(1L, 10))
+        .thenThrow(new BusinessException(ErrorCode.INVENTORY_NOT_FOUND));
+
+    // then
+    mockMvc.perform(patch("/inventory/1/increase")
+            .param("quantity", "10")
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.message").value(ErrorCode.INVENTORY_NOT_FOUND.getDetail())); // 에러 메시지 검증
+
+    verify(inventoryService, times(1)).increaseQuantity(1L, 10);
+
+  }
+
+  @Test
+  @DisplayName("재고 수량 증가 시 입력 수량이 음수일 경우 테스트")
+  void increaseQuantityInvalidInput() throws Exception {
+
+    // given
+    when(inventoryService.increaseQuantity(1L, -10))
+        .thenThrow(new BusinessException(ErrorCode.NEGATIVE_QUANTITY));  // 잘못된 수량 예외 발생
+
+    // then
+    mockMvc.perform(patch("/inventory/1/increase")
+            .param("quantity", "-10")  // 잘못된 수량 입력
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest())  // 잘못된 입력일 경우 400 응답
+        .andExpect(jsonPath("$.message").value(ErrorCode.NEGATIVE_QUANTITY.getDetail())); // 에러 메시지 검증
+
+    verify(inventoryService, times(1)).increaseQuantity(1L, -10);
+  }
+
+
 
 
 }
