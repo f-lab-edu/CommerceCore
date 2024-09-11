@@ -45,7 +45,11 @@ public class Order {
         user.getOrders().add(this);
         this.orderProducts = orderProducts;
         this.payment = payment;
-        this.status = payment.getStatus();
+        this.status = payment != null ? payment.getStatus() : Status.PROCESSING;
         this.orderDate = LocalDateTime.now();
+    }
+
+    public void cancelOrder(Status status) {
+        this.status = status;
     }
 }
