@@ -242,13 +242,13 @@ public class OrderService {
         // 조회된 재고 개수와 요청한 productIds 의 개수가 맞지 않으면 예외 발생
         if(inventories.size() != productIds.size()){
           log.error(ErrorCode.PRODUCT_NOT_FOUND.getDetail(),productIds);
-          throw BusinessException.create(ErrorCode.PRODUCT_NOT_FOUND);
+          throw BusinessException.create(ErrorCode.INVENTORY_NOT_FOUND);
         }
 
         // 재고 리스트를 Map 형태로 변환하여 반환
         Map<Long, Inventory> inventoryMap = new HashMap<>();
         for(Inventory inventory : inventories){
-            inventoryMap.put(inventory.getInventoryId(), inventory);
+            inventoryMap.put(inventory.getProduct().getProductId(), inventory);
         }
         return inventoryMap;
     }
@@ -261,7 +261,7 @@ public class OrderService {
      * @throws BusinessException 상품이 없거나 유효하지 않은 경우 예외 발생
      */
     private Map<Long, Product> validateProducts(List<Long> productIds){
-        List<Product> products = productRepository.findAllByProductId(productIds);
+        List<Product> products = productRepository.findAllByProductIdIn(productIds);
 
         // 조회된 상품 개수와 요청한 productIds의 개수가 맞지 않으면 예외 발생
         if(products.size() != productIds.size()){
