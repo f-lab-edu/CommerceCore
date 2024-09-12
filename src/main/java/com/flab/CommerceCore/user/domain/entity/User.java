@@ -1,7 +1,5 @@
 package com.flab.CommerceCore.user.domain.entity;
 
-import com.flab.CommerceCore.common.exceptions.BusinessException;
-import com.flab.CommerceCore.common.exceptions.ErrorCode;
 import com.flab.CommerceCore.order.domain.entity.Order;
 import com.flab.CommerceCore.user.domain.dto.UserRequest;
 import jakarta.persistence.*;
@@ -13,8 +11,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Entity
 @Getter
@@ -22,7 +18,6 @@ import org.slf4j.LoggerFactory;
 @Table(name = "Users")
 public class User {
 
-    private static final Logger log = LoggerFactory.getLogger(User.class);
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
