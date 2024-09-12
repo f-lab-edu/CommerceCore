@@ -9,7 +9,7 @@ import com.flab.CommerceCore.product.domain.dto.ProductRequest;
 import com.flab.CommerceCore.product.domain.dto.ProductResponse;
 import com.flab.CommerceCore.product.domain.entity.Product;
 import com.flab.CommerceCore.product.repository.ProductRepository;
-import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -43,7 +44,7 @@ public class ProductServiceImpl implements ProductService {
    */
   @Override
   @Transactional
-  public ProductResponse createProduct(ProductRequest productRequest) {
+  public ProductResponse createProduct(@Valid ProductRequest productRequest) {
     // 상품 요청을 엔티티로 변환
     Product product = mapper.convertRequestToEntity(productRequest);
 
@@ -69,6 +70,7 @@ public class ProductServiceImpl implements ProductService {
    * @throws BusinessException 등록되지 않은 상품을 조회할 경우 발생
    */
   @Override
+  @Transactional(readOnly = true)
   public ProductResponse findProductById(Long productId) {
     // 상품이 존재하는지 확인하고 조회
     Product findProduct = validateNotNullProduct(productId);
@@ -88,7 +90,7 @@ public class ProductServiceImpl implements ProductService {
    * @return 페이징된 상품 목록 응답 정보
    */
   @Override
-  @Transactional
+  @Transactional(readOnly = true)
   public List<ProductResponse> findAllProducts(int page) {
     // 페이지 요청 생성 (기본 10개씩)
     Pageable pageable = PageRequest.of(page, 10);
@@ -129,7 +131,7 @@ public class ProductServiceImpl implements ProductService {
    */
   @Override
   @Transactional
-  public ProductResponse updateProduct(Long productId, ProductRequest productRequest) {
+  public ProductResponse updateProduct(Long productId,@Valid ProductRequest productRequest) {
     // 상품이 존재하는지 확인
     Product product = validateNotNullProduct(productId);
 
