@@ -30,6 +30,7 @@ public class OrderMapper {
         .orderProductResponses(orderProductResponses)
         .totalAmount(totalAmount)
         .status(order.getStatus())
+        .userId(order.getUser().getUserId())
         .build();
   }
 }

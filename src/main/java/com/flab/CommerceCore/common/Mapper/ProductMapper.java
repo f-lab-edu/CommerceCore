@@ -18,6 +18,7 @@ public class ProductMapper {
 
   public ProductResponse convertEntityToResponse(Product product,int quantity) {
     return ProductResponse.builder()
+        .productId(product.getProductId())
         .productName(product.getProductName())
         .description(product.getDescription())
         .price(product.getPrice())

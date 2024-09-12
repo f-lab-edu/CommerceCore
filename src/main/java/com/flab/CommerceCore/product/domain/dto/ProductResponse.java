@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductResponse {
+  private Long productId;
   private String productName;
   private String description;
   private BigDecimal price;
