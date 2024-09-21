@@ -9,15 +9,17 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
   // Data Access 계층 예외
-  DATA_ACCESS_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR,"서버에 오류가 발생했습니다.",""),
+  DATA_ACCESS_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR,"서버에 오류가 발생했습니다. 관리자에게 문의하세요.",""),
   DATA_ACCESS_RESOURCE_FAILURE(HttpStatus.SERVICE_UNAVAILABLE, "데이터베이스 리소스에 접근할 수 없습니다.", ""),
   DATA_INTEGRITY_VIOLATION(HttpStatus.BAD_REQUEST, "데이터 무결성 제약 조건 위반", ""),
 
   // Business 계층 예외
-  USERID_NOT_FOUND(HttpStatus.NOT_FOUND,"유저 정보를 찾을 수 없습니다.","유저 ID[{}]로 찾을수 없습니다."),
+  USERID_NOT_FOUND(HttpStatus.NOT_FOUND,"유저 정보를 찾을 수 없습니다.","유저 ID[{}]로 찾을 수 없습니다."),
   PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품 정보를 찾을 수 없습니다.","상품 ID[{}]로 찾을 수 없습니다."),
   AMOUNT_NOT_FOUND(HttpStatus.BAD_REQUEST, "Amount 정보가 누락되었습니다.", "Amount가 null일 수 없습니다. 전달된 값: [{}]."),
   INVENTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "재고를 찾을 수 없습니다.", "재고 ID[{}]로 찾을수 없습니다."),
+  ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "주문 정보를 찾을 수 없습니다.", "주문 ID[{}]로 찾을 수 없습니다."),
+  ORDER_ALREADY_CANCELED(HttpStatus.BAD_REQUEST, "이미 취소된 주문입니다.", "주문 ID[{}]는 이미 취소된 주문입니다."),
 
   NEGATIVE_AMOUNT(HttpStatus.BAD_REQUEST, "결제 금액은 음수가 될 수 없습니다.", "제공된 금액이 음수입니다: [{}]."),
   INSUFFICIENT_INVENTORY(HttpStatus.BAD_REQUEST,"재고가 부족합니다.","재고 : [{}]개 ,요청 : [{}]개"),
