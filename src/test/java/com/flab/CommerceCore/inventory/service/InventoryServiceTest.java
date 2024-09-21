@@ -289,7 +289,7 @@ class InventoryServiceTest {
   void updateInventoryNegativeQuantity(){
     // given
     Inventory inventory = createTestInventory(createTestProduct("Test Product"), 10);
-    when(inventoryRepository.findByInventoryId(1L)).thenReturn(inventory);
+    when(inventoryRepository.findByProductId(1L)).thenReturn(inventory);
 
     // when
     BusinessException exception = assertThrows(BusinessException.class, () -> {
