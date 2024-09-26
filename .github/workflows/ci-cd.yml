@@ -20,23 +20,46 @@ jobs:
         with:
           java-version: '17'
           
-      # Gradle wrapper 파일에 실행 권한 추가
+      # 3. Gradle wrapper 파일에 실행 권한 추가
       - name: Grant execute permission for Gradle wrapper
         run: chmod +x ./gradlew
 
-      # 3. Gradle 빌드 (Spring Boot 애플리케이션 빌드)
+      # 4. Github Actions 러너의 공인 IP 가져오기
+      - name: Get Github Actions IP
+        id: ip
+        run: |
+          PUBLIC_IP=$(curl -s https://ifconfig.me)
+          echo "::set-output name=public_ip::$PUBLIC_IP"
+      
+      # 5. NCP CLI 다운로드 및 자격 증명 설정
+      - name: Setting NCP CLI & Credentials
+        run: |
+          cd ~
+          wget https://www.ncloud.com/api/support/download/5/65
+          unzip 65
+          mkdir ~/.ncloud
+          echo -e "[DEFAULT]\nncloud_access_key_id = ${{ secrets.NCP_ACCESS_KEY }}\nncloud_secret_access_key = ${{ secrets.NCP_SECRET_KEY }}" >> ~/.ncloud/configure
+
+      # 6. 보안 그룹에 Github Actions IP 추가
+      - name: Add Github Actions IP to DB Security Group
+        run: |
+          chmod -R 777 ~/cli_linux
+          cd ~/cli_linux
+          ./ncloud vserver addAccessControlGroupInboundRule --regionCode KR --vpcNo ${{ secrets.NCP_VPC_ID }} --accessControlGroupNo ${{ secrets.DB_ACG_ID }} --accessControlGroupRuleList "protocolTypeCode='TCP', ipBlock='${{ steps.ip.outputs.public_ip }}/32', portRange='3306'"
+
+      # 7. Gradle 빌드 (Spring Boot 애플리케이션 빌드)
       - name: Build with Gradle
         run: ./gradlew build
 
-      # 4. Docker 이미지 빌드 (Docker 이미지 생성)
+      # 8. Docker 이미지 빌드 (Docker 이미지 생성)
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/commercecore .
 
-      # 5. Docker Hub 로그인 (로그인 후 이미지 푸시)
+      # 9. Docker Hub 로그인 (로그인 후 이미지 푸시)
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      # 6. Docker 이미지 푸시 (Docker Hub에 이미지 업로드)
+      # 10. Docker 이미지 푸시 (Docker Hub에 이미지 업로드)
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/commercecore
 
