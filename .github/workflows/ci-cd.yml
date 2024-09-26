@@ -38,7 +38,7 @@ jobs:
           wget https://www.ncloud.com/api/support/download/5/65
           unzip 65
           mkdir ~/.ncloud
-          echo -e "[DEFAULT]\nncloud_access_key_id = ${{ secrets.NCP_ACCESS_KEY }}\nncloud_secret_access_key = ${{ secrets.NCP_SECRET_KEY }}" >> ~/.ncloud/configure
+          echo -e "[DEFAULT]\nncloud_access_key_id = ${{ secrets.NCP_ACCESS_KEY }}\nncloud_secret_access_key = ${{ secrets.NCP_SECRET_KEY }}\nncloud_api_url = https://ncloud.apigw.ntruss.com" >> ~/.ncloud/configure
 
       # 6. 보안 그룹에 Github Actions IP 추가
       - name: Add Github Actions IP to DB Security Group
