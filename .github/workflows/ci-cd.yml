@@ -24,41 +24,35 @@ jobs:
       - name: Grant execute permission for Gradle wrapper
         run: chmod +x ./gradlew
 
-      # 4. Github Actions 러너의 공인 IP 가져오기
-      - name: Get Github Actions IP
-        id: ip
+      # 4. SSH 키 설정
+      - name: Setup SSH Key
         run: |
-          PUBLIC_IP=$(curl -s https://ifconfig.me)
-          echo "::set-output name=public_ip::$PUBLIC_IP"
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.WAS_01_IP }} >> ~/.ssh/known_hosts
 
-      # 7. WAS 서버(Bastion Host 역할)에 SSH 접속 및 포트 포워딩 설정
-      - name: SSH to WAS Server and forward DB connection
-        uses: appleboy/ssh-action@v0.1.3
-        with:
-          host: ${{ secrets.WAS_01_IP }}  # WAS 서버의 퍼블릭 IP
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            # SSH 포트 포워딩을 통해 GitHub Actions가 프라이빗 서브넷의 DB에 접근 가능하도록 설정
-            ssh -L 3306:10.0.2.7:3306 -N -f -l ${{ secrets.SERVER_USER }} ${{ secrets.WAS_01_IP }}
+      # 5. 베스천 호스트로 SSH 터널 설정
+      - name: Set up SSH Tunnel to Bastion Host
+        run: |
+          ssh -f -N -L 3306:10.0.2.7:3306 ${{ secrets.SERVER_USER }}@${{ secrets.WAS_01_IP }}
    
-
-      # 7. Gradle 빌드 (Spring Boot 애플리케이션 빌드)
+      # 6. Gradle 빌드 (Spring Boot 애플리케이션 빌드)
       - name: Build with Gradle
         run: ./gradlew build
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/commercecore
 
 
-      # 8. Docker 이미지 빌드 (Docker 이미지 생성)
+      # 7. Docker 이미지 빌드 (Docker 이미지 생성)
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/commercecore .
 
-      # 9. Docker Hub 로그인 (로그인 후 이미지 푸시)
+      # 8. Docker Hub 로그인 (로그인 후 이미지 푸시)
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      # 10. Docker 이미지 푸시 (Docker Hub에 이미지 업로드)
+      # 9. Docker 이미지 푸시 (Docker Hub에 이미지 업로드)
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/commercecore
 
