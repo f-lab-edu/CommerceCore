@@ -79,12 +79,31 @@ jobs:
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/commercecore
 
+        # 8. 보안 그룹에서 Github Actions IP 삭제  
+      - name: Remove Github Actions IP from DB Security Group  
+        run: |  
+          cd ~/cli_linux  
+          ./ncloud vserver removeAccessControlGroupInboundRule --regionCode KR --vpcNo ${{ secrets.NCP_VPC_ID }} --accessControlGroupNo ${{ secrets.WAS_ACG_ID }} --accessControlGroupRuleList "protocolTypeCode='TCP', ipBlock='${{ steps.ip.outputs.public_ip }}/32', portRange='22'"  
+
   deploy:
     needs: build  # build 작업이 완료된 후 deploy 작업 실행
     runs-on: ubuntu-latest
 
     steps:
-      # 1. SSH를 통해 NCP 서버로 접속 및 배포
+    # 1. Github Actions 러너의 공인 IP 다시 가져오기  
+      - name: Get Github Actions IP  
+        id: ip  
+        run: |  
+          PUBLIC_IP=$(curl -s https://ifconfig.me)  
+          echo "::set-output name=public_ip::$PUBLIC_IP"  
+
+      # 2. 보안 그룹에 Github Actions IP 추가  
+      - name: Add Github Actions IP to DB Security Group  
+        run: |  
+          cd ~/cli_linux  
+          ./ncloud vserver addAccessControlGroupInboundRule --regionCode KR --vpcNo ${{ secrets.NCP_VPC_ID }} --accessControlGroupNo ${{ secrets.WAS_ACG_ID }} --accessControlGroupRuleList "protocolTypeCode='TCP', ipBlock='${{ steps.ip.outputs.public_ip }}/32', portRange='22'"  
+      
+      # 3. SSH를 통해 NCP 서버로 접속 및 배포
       - name: SSH to Server and Deploy
         uses: appleboy/ssh-action@v0.1.3
         with:
@@ -97,7 +116,7 @@ jobs:
             docker rm commercecore || true    # 기존 컨테이너 제거
             docker run -d --name commercecore -p 8090:8090 ${{ secrets.DOCKER_HUB_USERNAME }}/commercecore  # 새로운 컨테이너 실행
 
-        # 2. 보안 그룹에서 Github Actions IP 삭제  
+        # 4. 보안 그룹에서 Github Actions IP 삭제  
       - name: Remove Github Actions IP from DB Security Group  
         run: |  
           cd ~/cli_linux  
