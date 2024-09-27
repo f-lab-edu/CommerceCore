@@ -109,6 +109,7 @@ jobs:
     # 3. 보안 그룹에 Github Actions IP 추가  
       - name: Add Github Actions IP to wAS Security Group  
         run: |  
+          chmod -R 777 ~/cli_linux
           cd ~/cli_linux  
           ./ncloud vserver addAccessControlGroupInboundRule --regionCode KR --vpcNo ${{ secrets.NCP_VPC_ID }} --accessControlGroupNo ${{ secrets.WAS_ACG_ID }} --accessControlGroupRuleList "protocolTypeCode='TCP', ipBlock='${{ steps.ip.outputs.public_ip }}/32', portRange='22'"  
       
