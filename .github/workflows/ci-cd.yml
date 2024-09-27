@@ -31,32 +31,23 @@ jobs:
           PUBLIC_IP=$(curl -s https://ifconfig.me)
           echo "::set-output name=public_ip::$PUBLIC_IP"
       
-      # 5. NCP CLI 캐시 설정 (CLI가 없으면 다운로드)
-      - name: Cache NCP CLI
-        uses: actions/cache@v2
-        id: ncp-cli-cache
-        with:
-          path: ~/cli_linux
-          key: ncp-cli-65
-
-      # 6. 캐시가 없을 경우 NCP CLI 다운로드
-      - name: Setting NCP CLI & Credentials
-        if: steps.ncp-cli-cache.outputs.cache-hit != 'true'
+       # 5. NCP CLI 다운로드 및 자격 증명 설정
+      - name: Download NCP CLI & Configure Credentials
         run: |
           cd ~
           wget https://www.ncloud.com/api/support/download/5/65
           unzip 65
           mkdir ~/.ncloud
-          echo -e "[DEFAULT]\nncloud_access_key_id = ${{ secrets.NCP_ACCESS_KEY }}\nncloud_secret_access_key = ${{ secrets.NCP_SECRET_KEY }}\nncloud_api_url = https://ncloud.apigw.ntruss.com" >> ~/.ncloud/configure
+          echo -e "[DEFAULT]\nncloud_access_key_id = ${{ secrets.NCP_ACCESS_KEY }}\nncloud_secret_access_key = ${{ secrets.NCP_SECRET_KEY }}\nncloud_api_url = https://ncloud.apigw.ntruss.com" > ~/.ncloud/configure
 
-      # 7. bastion host역할의 서브넷 보안 그룹에 Github Actions IP 추가
-      - name: Add Github Actions IP to DB Security Group
+      # 6. bastion host역할의 서브넷 보안 그룹에 Github Actions IP 추가
+      - name: Add Github Actions IP to WAS Security Group
         run: |
           chmod -R 777 ~/cli_linux
           cd ~/cli_linux
           ./ncloud vserver addAccessControlGroupInboundRule --regionCode KR --vpcNo ${{ secrets.NCP_VPC_ID }} --accessControlGroupNo ${{ secrets.WAS_ACG_ID }} --accessControlGroupRuleList "protocolTypeCode='TCP', ipBlock='${{ steps.ip.outputs.public_ip }}/32', portRange='22'"
 
-      # 8. SSH 키 설정
+      # 7. SSH 키 설정
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
@@ -64,30 +55,30 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.WAS_01_IP }} >> ~/.ssh/known_hosts
 
-      # 9. 베스천 호스트로 SSH 터널 설정
+      # 8. 베스천 호스트로 SSH 터널 설정
       - name: Set up SSH Tunnel to Bastion Host
         run: |
           ssh -f -N -L 3306:10.0.2.7:3306 ${{ secrets.SERVER_USER }}@${{ secrets.WAS_01_IP }}
    
-      # 10. Gradle 빌드 (Spring Boot 애플리케이션 빌드)
+      # 9. Gradle 빌드 (Spring Boot 애플리케이션 빌드)
       - name: Build with Gradle
         run: ./gradlew build
         env:
           SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/commercecore
 
-      # 11. Docker 이미지 빌드 (Docker 이미지 생성)
+      # 10. Docker 이미지 빌드 (Docker 이미지 생성)
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/commercecore .
 
-      # 12. Docker Hub 로그인 (로그인 후 이미지 푸시)
+      # 11. Docker Hub 로그인 (로그인 후 이미지 푸시)
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      # 13. Docker 이미지 푸시 (Docker Hub에 이미지 업로드)
+      # 12. Docker 이미지 푸시 (Docker Hub에 이미지 업로드)
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/commercecore
 
-      # 14. 보안 그룹에서 Github Actions IP 삭제  
+      # 13. 보안 그룹에서 Github Actions IP 삭제  
       - name: Remove Github Actions IP from DB Security Group  
         run: |  
           cd ~/cli_linux  
@@ -104,16 +95,19 @@ jobs:
         run: |  
           PUBLIC_IP=$(curl -s https://ifconfig.me)  
           echo "::set-output name=public_ip::$PUBLIC_IP"  
-    
-    # 2. NCP CLI 캐시 복원
-      - name: Restore NCP CLI from Cache
-        uses: actions/cache@v2
-        with:
-          path: ~/cli_linux
-          key: ncp-cli-65  # build 단계에서 사용한 키
+
+    # 2. NCP CLI 다운로드 및 자격 증명 설정
+      - name: Download NCP CLI & Configure Credentials
+        run: |
+          cd ~
+          wget https://www.ncloud.com/api/support/download/5/65
+          unzip 65
+          mkdir ~/.ncloud
+          echo -e "[DEFAULT]\nncloud_access_key_id = ${{ secrets.NCP_ACCESS_KEY }}\nncloud_secret_access_key = ${{ secrets.NCP_SECRET_KEY }}\nncloud_api_url = https://ncloud.apigw.ntruss.com" > ~/.ncloud/configure
+
 
     # 3. 보안 그룹에 Github Actions IP 추가  
-      - name: Add Github Actions IP to DB Security Group  
+      - name: Add Github Actions IP to wAS Security Group  
         run: |  
           cd ~/cli_linux  
           ./ncloud vserver addAccessControlGroupInboundRule --regionCode KR --vpcNo ${{ secrets.NCP_VPC_ID }} --accessControlGroupNo ${{ secrets.WAS_ACG_ID }} --accessControlGroupRuleList "protocolTypeCode='TCP', ipBlock='${{ steps.ip.outputs.public_ip }}/32', portRange='22'"  
