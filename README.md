@@ -26,20 +26,20 @@
 
 - **프레임워크 및 언어**: `Java` ,`spring Boot`, `JPA`
 - **데이터베이스**: `MySQL`
-- **모니터링**: `미정`(예: Prometheus, Grafana)
-- **로드밸런서**: `미정`(예: Nginx)
-- **캐시**: `미정`(예: Redis, Memcached)
-- **메시지/이벤트 브로커**: `미정`(예: RabbitMQ, Kafka)
-- **테스팅**: `미정`(예: JUnit, Mockito)
-- CI/CD : `미정`( 예: Jenkins, GitHub Action)
+- **모니터링**: `scouter`
+- **로드밸런서**: `Nginx`
+- **테스팅**: `JUnit`, `ngrinder`
+- 배포 : `GitHub Action`, `Docker`
+- Cloud : `NCP`
+
 
 <br><br>
 
 ## 프로젝트 아키텍처
 
-최종(예상)
 
-![architecture](https://github.com/user-attachments/assets/a9ca7ef0-6427-4897-a31d-666deb02c4d3)
+![architecture](https://github.com/user-attachments/assets/3d9a1b8c-457f-4c74-83fb-02dcc4295de9)
+
 
 <br><br>
 
